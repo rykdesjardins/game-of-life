@@ -79,8 +79,11 @@ namespace GameOfLife
         static int death_by_aging;
         static int total_organisms;
         static int total_offsprings;
+        static int total_alive;
 
-        int familyId;
+        int parent1id;
+        int parent2id; 
+        int offsprings;
 
         bool alive = true;
         bool awake = true;
@@ -108,6 +111,8 @@ namespace GameOfLife
             Organism(int, Tile*);
             Organism(Organism*, Organism*, Tile*);
             ~Organism();
+
+            Tile* GetTile() { return this->currenttile; };
 
             bool IsHungry();
             bool IsThirsty();

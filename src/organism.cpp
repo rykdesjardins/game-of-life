@@ -8,40 +8,83 @@ namespace GameOfLife
     int Organism::death_by_starvation = 0;
     int Organism::total_organisms = 0;
     int Organism::total_offsprings = 0;
+    int Organism::total_alive = 0;
 
     Organism::Organism(int id, Tile* tile) 
     {
-        this->familyId = id;
+        this->parent1id = id;
+        this->parent2id = id;
         this->currenttile = tile;
 
         this->gender = (Gender)(rand() % GENDER_TOTAL);
         this->personality = (Personality)(rand() % PERSONALITY_TOTAL);
         this->drawndirection = (DrawnDirection)(rand() % DRAWN_DIRECTION_TOTAL);
 
-        this->lifespan = (rand() % (200 * MEM_MULTIPLIER)) + (50 * MEM_MULTIPLIER);
+        this->lifespan = (rand() % (100 * MEM_MULTIPLIER)) + (20 * MEM_MULTIPLIER);
         this->max_energy = (rand() % (100 * MEM_MULTIPLIER)) + (10 * MEM_MULTIPLIER);
         this->max_hydratation = (rand() % (20 * MEM_MULTIPLIER)) + (10 * MEM_MULTIPLIER);
 
-        this->min_temperature = (float)500 / (rand() % 10);
+        this->min_temperature = (float)-500 / (rand() % 10);
         this->max_temperature = (float)500 / (rand() % 10);
 
         this->energy = this->max_energy;
         this->hydratation = this->max_hydratation;
 
+        int daytime = rand() % 10 + 10;
+        this->max_awake_time = daytime;
+        this->max_sleep_time = 24 - daytime;
+
         tile->organism = this;
         Organism::total_organisms++;
+        Organism::total_alive++;
+    }
+
+    Organism::Organism(Organism* parent1, Organism* parent2, Tile* tile)
+    {
+        this->parent1id = parent1->parent1id;
+        this->parent2id = parent2->parent2id;
+        this->currenttile = tile;
+
+        this->gender = (Gender)(rand() % GENDER_TOTAL);
+        this->personality = (Personality)(rand() % PERSONALITY_TOTAL);
+        this->drawndirection = (DrawnDirection)(rand() % DRAWN_DIRECTION_TOTAL);
+
+        this->lifespan = max(parent1->lifespan, parent2->lifespan) * 1.01;
+        this->max_energy = max(parent1->max_energy, parent2->max_energy) * 1.1;
+        this->max_hydratation = max(parent1->max_hydratation, parent2->max_hydratation) * 1.1;
+
+        this->min_temperature = min(parent1->min_temperature, parent2->min_temperature) * 1.1;
+        this->max_temperature = max(parent1->max_temperature, parent2->max_temperature) * 1.1;
+
+        this->energy = this->max_energy;
+        this->hydratation = this->max_hydratation;
+        
+        int daytime = (parent1->max_awake_time + parent2->max_awake_time) / 2;
+        this->max_awake_time = daytime;
+        this->max_sleep_time = 24 - daytime;
+
+        tile->organism = this;
+        Organism::total_organisms++;
+        Organism::total_offsprings++;
+        Organism::total_alive++;
+
+        parent1->offsprings++;
+        parent2->offsprings++;
     }
 
     Organism::~Organism()
     {
         this->currenttile->organism = nullptr;
+        Organism::total_alive--;
     }
 
     void Organism::PrintStats()
     {
-        cout << "Total organisms " << Organism::total_organisms << endl;
-        cout << "Dead by aging " << Organism::death_by_aging << endl;
-        cout << "Dead by starvation " << Organism::death_by_starvation << endl;
+        cout << "Total organisms     " << Organism::total_organisms << endl;
+        cout << "Total alive         " << Organism::total_alive << endl;
+        cout << "Total offsprings    " << Organism::total_offsprings << endl;
+        cout << "Dead by aging       " << Organism::death_by_aging << endl;
+        cout << "Dead by starvation  " << Organism::death_by_starvation << endl;
         cout << "Dead by dehydration " << Organism::death_by_dehydration << endl;
     }
 
@@ -51,7 +94,7 @@ namespace GameOfLife
         this->hydratation--;
         this->age++;
 
-        if (this->age == this->lifespan) 
+        if (this->age >= this->lifespan) 
         {
             Organism::death_by_aging++;
             this->alive = false;
@@ -104,16 +147,18 @@ namespace GameOfLife
 
     bool Organism::CanBreedWith(Organism *right)
     {
-        return this->CanBreed() && this->familyId == right->familyId;
+        return this->CanBreed() && this->parent1id != right->parent1id && this->parent2id != right->parent2id && this->gender != right->gender;;
     }
 
     bool Organism::CanBreed()
     {
-        return this->age > 1000;
+        return this->offsprings < (MEM_MULTIPLIER) && this->age > 60 * MEM_MULTIPLIER;
     }
 
     Tile* Organism::Move(World* world)
     {
+        if (!this->awake) { return nullptr; }
+
         OrganismPriority priority = EXPLORATION;
         vector<TileDistance> visibleTiles;
         world->GetVisible(visibleTiles, this->currenttile, this->sight);
@@ -140,8 +185,17 @@ namespace GameOfLife
                             break;
 
                         case REPRODUCTION:
-                            if (td.tile->organism != nullptr && !td.tile->organism->CanBreedWith(this)) { 
-                                candidate = &td; 
+                            if (td.tile->organism != nullptr && this->CanBreedWith(td.tile->organism)) { 
+                                vector<TileDistance> emptyTilesAroundMate;
+                                world->GetVisible(emptyTilesAroundMate, td.tile, 1);
+                                for (TileDistance &td : emptyTilesAroundMate) 
+                                {
+                                    if (td.tile->organism == nullptr) 
+                                    {
+                                        candidate = &td; 
+                                        break;
+                                    }
+                                }
                             }
                             break;
 

@@ -88,7 +88,11 @@ namespace GameOfLife
 
     bool World::Tick()
     {
+        this->age++;
+        vector<Organism*> newOrgs;
+        vector<Plant*> newPlants;
         vector<Organism*>::iterator oit = this->organisms.begin();
+
         while (oit != this->organisms.end())
         {
             Organism * org = (*oit);
@@ -109,6 +113,31 @@ namespace GameOfLife
                     {
                         org->Drink();
                     }
+
+                    if (org->CanBreed())
+                    {
+                        vector<TileDistance> around;
+                        this->GetVisible(around, org->GetTile(), 1);
+
+                        for (TileDistance &dt : around)
+                        {
+                            if (dt.tile->organism != nullptr && org->CanBreedWith(dt.tile->organism))
+                            {
+                                Organism * mate = dt.tile->organism;
+                                for (TileDistance &emptydt : around) 
+                                {
+                                    if (emptydt.tile->organism == nullptr) 
+                                    {
+                                        Organism * offspring = new Organism(org, mate, emptydt.tile);
+                                        newOrgs.push_back(offspring);
+                                        break;
+                                    }
+                                }
+
+                                break;
+                            }
+                        }
+                    }
                 }
 
                 oit++;
@@ -119,6 +148,12 @@ namespace GameOfLife
                 delete org;
             }
         }
+
+        for (Organism *org : newOrgs)
+        {
+            this->organisms.push_back(org);
+        }
+        newOrgs.empty();
 
         for (Plant *plant : this->plants)
         {
@@ -133,13 +168,23 @@ namespace GameOfLife
                     if (dt.tile->plant == nullptr) 
                     {
                         Plant* pl = new Plant(plant->GetID(), dt.tile);
-                        this->plants.push_back(pl);
+                        newPlants.push_back(pl);
 
                         break;
                     }
                 }
             }
         }
+
+        for (Plant *pl : newPlants)
+        {
+            this->plants.push_back(pl);
+        }
+        newPlants.empty();
+
+        cout << "WORLD HOUR " << this->age << endl;
+        cout << "Total plants        " << this->plants.size() << endl;
+        Organism::PrintStats();
 
         return this->organisms.size() != 0;
     }
