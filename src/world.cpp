@@ -15,17 +15,19 @@ namespace GameOfLife
         for (int i = 0; i < FAMILY_COUNT; i++)
         {
             // Avoiding edge of the map
-            int root_x = rand() % (WORLD_SIZE + FAMILY_MAX_SIZE) - FAMILY_MAX_SIZE;
-            int root_y = rand() % (WORLD_SIZE + FAMILY_MAX_SIZE) - FAMILY_MAX_SIZE;
+            int root_x = abs(rand() % (WORLD_SIZE + FAMILY_MAX_SIZE) - FAMILY_MAX_SIZE);
+            int root_y = abs(rand() % (WORLD_SIZE + FAMILY_MAX_SIZE) - FAMILY_MAX_SIZE);
             int family_size = rand() % (FAMILY_MAX_SIZE + FAMILY_MIN_SIZE) - FAMILY_MIN_SIZE + 1;
 
             for (int j = 0; j < family_size; j++) 
             {
-                cout << "Family " << i << ", organism " << j << endl;
+                cout << "Family " << i << ", organism " << j << " position " << root_x << ", " << root_y << endl;
                 if (rand() % 2 == 0)
                     root_x++;
                 else
                     root_y++;
+
+                if (root_x >= WORLD_SIZE || root_y >= WORLD_SIZE) break;
 
                 if (this->tiles[root_x][root_y].organism == nullptr) 
                 {
@@ -39,18 +41,20 @@ namespace GameOfLife
         // Plants
         for (int i = 0; i < FIELDS_COUNT; i++)
         {
-            int root_x = rand() % (WORLD_SIZE + FIELD_MAX_SIZE) - FIELD_MAX_SIZE;
-            int root_y = rand() % (WORLD_SIZE + FIELD_MAX_SIZE) - FIELD_MAX_SIZE;
+            int root_x = abs(rand() % (WORLD_SIZE + FIELD_MAX_SIZE) - FIELD_MAX_SIZE);
+            int root_y = abs(rand() % (WORLD_SIZE + FIELD_MAX_SIZE) - FIELD_MAX_SIZE);
             int field_size = rand() % (FIELD_MAX_SIZE + FIELD_MIN_SIZE) - FIELD_MIN_SIZE + 1;
 
             for (int j = 0; j < field_size; j++) 
             {
-                cout << "Field " << i << ", plant " << j << endl;
+                cout << "Field " << i << ", plant " << j << " position " << root_x << ", " << root_y << endl;
 
                 if (rand() % 2 == 0)
                     root_x++;
                 else
                     root_y++;
+
+                if (root_x >= WORLD_SIZE || root_y >= WORLD_SIZE) break;
 
                 if (this->tiles[root_x][root_y].plant == nullptr) 
                 {

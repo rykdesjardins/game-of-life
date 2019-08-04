@@ -3,13 +3,14 @@
 
 #include <vector>
 #include "organism.h"
+#include <ctime>
 #include <cstdlib>
 #include <iostream>
 using namespace std;
 
 namespace GameOfLife 
 {
-    const int WORLD_SIZE = 1000;
+    const int WORLD_SIZE = 120;
     const int FAMILY_COUNT = 20;
     const int FIELDS_COUNT = 60;
 
@@ -23,8 +24,6 @@ namespace GameOfLife
     {
         Organism *organism;
         Plant *plant;
-        int x;
-        int y;
     };
 
     class World
