@@ -53,7 +53,7 @@ namespace GameOfLife
         this->personality = (Personality)(rand() % PERSONALITY_TOTAL);
         this->drawndirection = (DrawnDirection)(rand() % DRAWN_DIRECTION_TOTAL);
 
-        this->lifespan = max(parent1->lifespan, parent2->lifespan) * 1.01;
+        this->lifespan = max(parent1->lifespan, parent2->lifespan) * 1.05;
         this->max_energy = max(parent1->max_energy, parent2->max_energy) * 1.1;
         this->max_hydratation = max(parent1->max_hydratation, parent2->max_hydratation) * 1.1;
 
