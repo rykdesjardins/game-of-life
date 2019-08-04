@@ -214,9 +214,28 @@ namespace GameOfLife
             candidate = &visibleTiles[0];
             for (TileDistance &td : visibleTiles)
             {
-                if (td.distance > candidate->distance && td.tile->organism == nullptr)
-                {
-                    candidate = &td;
+                if (td.distance > candidate->distance && td.tile->organism == nullptr) {
+                    switch (this->drawndirection) {
+                        case NORTHWEST:
+                            if (candidate->tile->x < this->currenttile->x && candidate->tile->y < this->currenttile->y)
+                                candidate = &td;
+                            break;
+
+                        case NORTHEAST:
+                            if (candidate->tile->x > this->currenttile->x && candidate->tile->y < this->currenttile->y)
+                                candidate = &td;
+                            break;
+
+                        case SOUTHWEST:
+                            if (candidate->tile->x > this->currenttile->x && candidate->tile->y > this->currenttile->y)
+                                candidate = &td;
+                            break;
+
+                        case SOUTHEAST:
+                            if (candidate->tile->x < this->currenttile->x && candidate->tile->y < this->currenttile->y)
+                                candidate = &td;
+                            break;
+                    }
                 }
             }
         }
