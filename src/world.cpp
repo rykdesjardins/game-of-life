@@ -134,6 +134,7 @@ namespace GameOfLife
                     {
                         Plant* pl = new Plant(plant->GetID(), dt.tile);
                         this->plants.push_back(pl);
+
                         break;
                     }
                 }

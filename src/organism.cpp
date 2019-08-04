@@ -191,6 +191,10 @@ namespace GameOfLife
         this->id = id;
         this->tile = tile;
         tile->plant = this;
+
+        this->energy = rand() % 20 * MEM_MULTIPLIER;
+        this->energy_needed = rand() % 2 * MEM_MULTIPLIER;
+        this->time_to_renew = (rand() % 100 + 20) * MEM_MULTIPLIER;
     }
 
     Plant::~Plant()
@@ -201,10 +205,5 @@ namespace GameOfLife
     void Plant::Tick()
     {
         this->age++;
-    }
-
-    bool Plant::CanRenew() 
-    {
-        return this->age % this->time_to_renew == 0;
     }
 }

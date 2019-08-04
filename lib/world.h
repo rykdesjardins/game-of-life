@@ -2,7 +2,7 @@
 #define WORLD_H
 
 #ifndef MEM_MULTIPLIER
-    #define MEM_MULTIPLIER 1
+    #define MEM_MULTIPLIER 10
 #endif
 
 #include <vector>

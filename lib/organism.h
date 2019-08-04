@@ -52,9 +52,9 @@ namespace GameOfLife
         Tile* tile;
         int id;
         int age = 0;
-        int energy = 200;
+        int energy = 20;
         int energy_needed = 5;
-        int time_to_renew = 1000;
+        int time_to_renew = 100;
 
         public:
             int GetID() { return this->id; };
@@ -62,7 +62,7 @@ namespace GameOfLife
             int GetEnergyNeeded() { return this->energy_needed; }
             Tile* GetTile() { return this->tile; };
             void Tick();
-            bool CanRenew();
+            bool CanRenew() { return this->age % this->time_to_renew == 0; };
             Plant(int, Tile*);
             ~Plant();
     };
@@ -89,8 +89,8 @@ namespace GameOfLife
 
         int lifespan;
         int age = 0;
-        float energy;
-        float max_energy;
+        int energy;
+        int max_energy;
         int hydratation;
         int max_hydratation;
         int strength = 100;
