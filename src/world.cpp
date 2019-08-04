@@ -21,17 +21,16 @@ namespace GameOfLife
 
             for (int j = 0; j < family_size; j++) 
             {
-                cout << "Family " << i << ", organism " << j << " position " << root_x << ", " << root_y << endl;
-                if (rand() % 2 == 0)
-                    root_x++;
-                else
-                    root_y++;
+                if (rand() % 2 == 0) root_x++;
+                else root_x--;
+                if (rand() % 2 == 0) root_y++;
+                else root_y--;
 
-                if (root_x >= WORLD_SIZE || root_y >= WORLD_SIZE) break;
+                if (root_x >= WORLD_SIZE || root_y >= WORLD_SIZE || root_x < 0 || root_y < 0) continue;
 
                 if (this->tiles[root_x][root_y].organism == nullptr) 
                 {
-                    Organism org(root_x, root_y);
+                    Organism org(root_x, root_y, i);
                     this->organisms.push_back(&org);
                     this->tiles[root_x][root_y].organism = &org;
                 }
@@ -47,14 +46,12 @@ namespace GameOfLife
 
             for (int j = 0; j < field_size; j++) 
             {
-                cout << "Field " << i << ", plant " << j << " position " << root_x << ", " << root_y << endl;
+                if (rand() % 2 == 0) root_x++;
+                else root_x--;
+                if (rand() % 2 == 0) root_y++;
+                else root_y--;
 
-                if (rand() % 2 == 0)
-                    root_x++;
-                else
-                    root_y++;
-
-                if (root_x >= WORLD_SIZE || root_y >= WORLD_SIZE) break;
+                if (root_x >= WORLD_SIZE || root_y >= WORLD_SIZE || root_x < 0 || root_y < 0) continue;
 
                 if (this->tiles[root_x][root_y].plant == nullptr) 
                 {
@@ -65,14 +62,31 @@ namespace GameOfLife
             }
         }
 
-        for (int x = 0; x < WORLD_SIZE; x++) {
-            for (int y = 0; y < WORLD_SIZE; y++) {
-                if (this->tiles[x][y].organism != nullptr) cout << "O";
-                else if (this->tiles[x][y].plant != nullptr) cout << "Y";
-                else cout << " ";
-            }
+        // Water
+        for (int i = 0; i < WATER_PATCH_COUNT; i++)
+        {
+            int root_x = abs(rand() % (WORLD_SIZE + FIELD_MAX_SIZE) - FIELD_MAX_SIZE);
+            int root_y = abs(rand() % (WORLD_SIZE + FIELD_MAX_SIZE) - FIELD_MAX_SIZE);
 
-            cout << endl;
+            for (int j = 0; j < WATER_PATCH_SIZE; j++)
+            {
+                if (rand() % 2 == 0) root_x++;
+                else root_x--;
+                if (rand() % 2 == 0) root_y++;
+                else root_y--;
+
+                if (root_x >= WORLD_SIZE || root_y >= WORLD_SIZE || root_x < 0 || root_y < 0) continue;
+
+                this->tiles[root_x][root_y].isWater = true;
+            }
+        }
+    }
+
+    void World::tick()
+    {
+        for (Organism *org : this->organisms)
+        {
+            org->Tick();
         }
     }
 }

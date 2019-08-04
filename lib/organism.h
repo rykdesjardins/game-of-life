@@ -6,6 +6,7 @@ using namespace std;
 
 namespace GameOfLife 
 {
+    const int GENDER_TOTAL = 5;
     enum Gender
     {
         SIGMA, OMICRON, THETA, PHI, ZETA
@@ -13,9 +14,14 @@ namespace GameOfLife
 
     enum State 
     {
-        STALE, EATING, REPRO, FIGHTING, SHARING
+        STALE,      // Not doing anything
+        EATING,     // Injesting food 
+        REPRO,      // Reproduction
+        FIGHTING,   // Fighting for food
+        SHARING     // Sharing information (not implemented)
     };
 
+    const int PERSONALITY_TOTAL = 4;
     enum Personality
     {
         EGOCENTRIC, // Food and survival first
@@ -26,29 +32,37 @@ namespace GameOfLife
 
     class Organism 
     {
-        Gender gender;
-        State state;
-        Personality personality;
+        Gender gender = SIGMA;
+        State state = STALE;
+        Personality personality = EGOCENTRIC;
 
-        int sight;
-        int lifespan;
-        int energy;
-        int max_energy;
-        int age;
         int familyId;
-        int velocity;
-        int strength;
         int x;
         int y;
-        float min_temperature;
-        float max_temperature;
-        int awake_time;
+
+        bool alive = true;
+        bool awake = true;
+        int sight = 4;
+        int lifespan = 100000;
+        int energy = 1000;
+        int max_energy = 1000;
+        int age = 0;
+        int velocity = 4;
+        int strength = 100;
+        int hydratation = 1000;
+        int max_hydratation = 1000;
+        float min_temperature = -30;
+        float max_temperature = 30;
+        int max_awake_time = 16;
+        int max_sleep_time = 8;
+        int awake_time = 0;
+        int sleep_time = 0;
 
         public: 
-            Organism(int, int);
-            Organism(Organism, Organism);
+            Organism(int, int, int);
+            Organism(Organism*, Organism*);
 
-            void Play();
+            void Tick();
     };
 
     class Plant
