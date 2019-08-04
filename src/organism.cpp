@@ -238,6 +238,8 @@ namespace GameOfLife
                     }
                 }
             }
+
+            this->drawndirection = (DrawnDirection)(rand() % 4);
         }
 
         if (candidate != nullptr)
