@@ -2,10 +2,16 @@
 #define ORGANISM_H
 
 #include <string>
+#include <vector>
 using namespace std;
 
 namespace GameOfLife 
 {
+    // Forward declaration
+    class World;
+    struct TileDistance;
+    struct Tile;
+    
     const int GENDER_TOTAL = 5;
     enum Gender
     {
@@ -30,53 +36,89 @@ namespace GameOfLife
         ALPHA       // Reproduction first
     };
 
+    const int DRAWN_DIRECTION_TOTAL = 4;
+    enum DrawnDirection 
+    {
+        NORTHWEST, NORTHEAST, SOUTHEAST, SOUTHWEST
+    };
+
+    enum OrganismPriority 
+    {
+        EXPLORATION, FOOD, WATER, REPRODUCTION
+    };
+
+    class Plant
+    {
+        Tile* tile;
+        int id;
+        int age = 0;
+        int energy = 200;
+        int energy_needed = 5;
+        int time_to_renew = 1000;
+
+        public:
+            int GetID() { return this->id; };
+            int GetTotalEnergy() { return this->energy - this->energy_needed; }
+            int GetEnergyNeeded() { return this->energy_needed; }
+            Tile* GetTile() { return this->tile; };
+            void Tick();
+            bool CanRenew();
+            Plant(int, Tile*);
+            ~Plant();
+    };
+
     class Organism 
     {
         Gender gender = SIGMA;
         State state = STALE;
         Personality personality = EGOCENTRIC;
+        DrawnDirection drawndirection;
+
+        static int death_by_dehydration;
+        static int death_by_starvation;
+        static int death_by_aging;
+        static int total_organisms;
+        static int total_offsprings;
 
         int familyId;
-        int x;
-        int y;
 
         bool alive = true;
         bool awake = true;
         int sight = 4;
-        int lifespan = 100000;
-        int energy = 1000;
-        int max_energy = 1000;
-        int age = 0;
         int velocity = 4;
+
+        int lifespan;
+        int age = 0;
+        float energy;
+        float max_energy;
+        int hydratation;
+        int max_hydratation;
         int strength = 100;
-        int hydratation = 1000;
-        int max_hydratation = 1000;
+
         float min_temperature = -30;
         float max_temperature = 30;
+
         int max_awake_time = 16;
         int max_sleep_time = 8;
         int awake_time = 0;
         int sleep_time = 0;
+        Tile* currenttile;
 
         public: 
-            Organism(int, int, int);
-            Organism(Organism*, Organism*);
+            Organism(int, Tile*);
+            Organism(Organism*, Organism*, Tile*);
+            ~Organism();
 
-            void Tick();
-    };
+            bool IsHungry();
+            bool IsThirsty();
+            bool CanBreed();
+            bool CanBreedWith(Organism*);
+            bool Tick();
+            Tile* Move(World*);
+            void Feed(Plant*);
+            void Drink();
 
-    class Plant
-    {
-        int id;
-        int age;
-        int energy;
-        int energy_needed;
-        int time_to_renew;
-        int x;
-        int y;
-
-        public:
-            Plant(int, int, int);
+            static void PrintStats();
     };
 }
 

@@ -2,6 +2,10 @@
 using namespace GameOfLife;
 
 int main() {
-    World world;
+    World* world = new World();
+    while(world->Tick());
+    Organism::PrintStats();
+
+    delete world;
     return 0;
 }

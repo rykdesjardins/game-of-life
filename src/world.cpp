@@ -9,6 +9,12 @@ namespace GameOfLife
         for (int i = 0; i < WORLD_SIZE; i++)
         {
             this->tiles[i] = new Tile[WORLD_SIZE];
+
+            for (int j = 0; j < WORLD_SIZE; j++)
+            {
+                this->tiles[i][j].x = i;
+                this->tiles[i][j].y = j;
+            }
         }
 
         // Families
@@ -30,9 +36,8 @@ namespace GameOfLife
 
                 if (this->tiles[root_x][root_y].organism == nullptr) 
                 {
-                    Organism org(root_x, root_y, i);
-                    this->organisms.push_back(&org);
-                    this->tiles[root_x][root_y].organism = &org;
+                    Organism* org = new Organism(i, &this->tiles[root_x][root_y]);
+                    this->organisms.push_back(org);
                 }
             }
         }
@@ -55,9 +60,8 @@ namespace GameOfLife
 
                 if (this->tiles[root_x][root_y].plant == nullptr) 
                 {
-                    Plant pl(root_x, root_y, j);
-                    this->plants.push_back(&pl);
-                    this->tiles[root_x][root_y].plant = &pl;
+                    Plant* pl = new Plant(j, &this->tiles[root_x][root_y]);
+                    this->plants.push_back(pl);
                 }
             }
         }
@@ -82,11 +86,90 @@ namespace GameOfLife
         }
     }
 
-    void World::tick()
+    bool World::Tick()
     {
-        for (Organism *org : this->organisms)
+        vector<Organism*>::iterator oit = this->organisms.begin();
+        while (oit != this->organisms.end())
         {
-            org->Tick();
+            Organism * org = (*oit);
+            if (org->Tick()) 
+            {
+                Tile* newtile = org->Move(this);
+                if (newtile != nullptr)
+                {
+                    if (newtile->plant != nullptr && org->IsHungry())
+                    {
+                        Plant *plant = newtile->plant;
+                        org->Feed(plant);
+                        this->plants.erase(find(this->plants.begin(), this->plants.end(), plant));
+                        delete plant;
+                    }
+
+                    if (newtile->isWater && org->IsThirsty())
+                    {
+                        org->Drink();
+                    }
+                }
+
+                oit++;
+            } 
+            else 
+            {
+                this->organisms.erase(oit);
+                delete org;
+            }
         }
+
+        for (Plant *plant : this->plants)
+        {
+            plant->Tick();
+            if (plant->CanRenew())
+            {
+                vector<TileDistance> surrounds;
+                this->GetVisible(surrounds, plant->GetTile(), 1);
+
+                for (TileDistance &dt : surrounds)
+                {
+                    if (dt.tile->plant == nullptr) 
+                    {
+                        Plant* pl = new Plant(plant->GetID(), dt.tile);
+                        this->plants.push_back(pl);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return this->organisms.size() != 0;
+    }
+
+    void World::GetVisible(vector<TileDistance> &tiles, Tile* tile, int radius)
+    {
+        int ox = tile->x;
+        int oy = tile->y;
+        for (int x = ox - radius; x < ox + radius; x++)
+        {
+            for (int y = oy - radius; y < oy + radius; y++)
+            {
+                if (x >= 0 && x < WORLD_SIZE && y >= 0 && y < WORLD_SIZE)
+                {
+                    TileDistance td(&this->tiles[x][y], abs(x - ox) + abs(y - oy));
+                    tiles.push_back(td);
+                }
+            }
+        }
+    }
+
+    TileDistance::TileDistance() {}
+    TileDistance::TileDistance(const TileDistance& o)
+    {
+        this->tile = o.tile;
+        this->distance = o.distance;
+    }
+
+    TileDistance::TileDistance(Tile *tile, int distance)
+    {
+        this->tile = tile;
+        this->distance = distance;
     }
 }
