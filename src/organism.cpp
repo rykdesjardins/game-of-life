@@ -9,12 +9,14 @@ namespace GameOfLife
     int Organism::total_organisms = 0;
     int Organism::total_offsprings = 0;
     int Organism::total_alive = 0;
+    int Organism::total_generations = 0;
 
     Organism::Organism(int id, Tile* tile) 
     {
         this->parent1id = id;
         this->parent2id = id;
         this->currenttile = tile;
+        this->generation = 1;
 
         this->gender = (Gender)(rand() % GENDER_TOTAL);
         this->personality = (Personality)(rand() % PERSONALITY_TOTAL);
@@ -37,6 +39,7 @@ namespace GameOfLife
         tile->organism = this;
         Organism::total_organisms++;
         Organism::total_alive++;
+        Organism::total_generations = 1;
     }
 
     Organism::Organism(Organism* parent1, Organism* parent2, Tile* tile)
@@ -44,6 +47,7 @@ namespace GameOfLife
         this->parent1id = parent1->parent1id;
         this->parent2id = parent2->parent2id;
         this->currenttile = tile;
+        this->generation = max(parent1->generation, parent2->generation) + 1;
 
         this->gender = (Gender)(rand() % GENDER_TOTAL);
         this->personality = (Personality)(rand() % PERSONALITY_TOTAL);
@@ -67,6 +71,7 @@ namespace GameOfLife
         Organism::total_organisms++;
         Organism::total_offsprings++;
         Organism::total_alive++;
+        Organism::total_generations = max(Organism::total_generations, this->generation);
 
         parent1->offsprings++;
         parent2->offsprings++;
@@ -82,7 +87,7 @@ namespace GameOfLife
     {
         cout << "Total organisms     " << Organism::total_organisms << endl;
         cout << "Total alive         " << Organism::total_alive << endl;
-        cout << "Total offsprings    " << Organism::total_offsprings << endl;
+        cout << "Total generations   " << Organism::total_generations << endl;
         cout << "Dead by aging       " << Organism::death_by_aging << endl;
         cout << "Dead by starvation  " << Organism::death_by_starvation << endl;
         cout << "Dead by dehydration " << Organism::death_by_dehydration << endl;

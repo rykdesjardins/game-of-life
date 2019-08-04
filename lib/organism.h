@@ -80,9 +80,11 @@ namespace GameOfLife
         static int total_organisms;
         static int total_offsprings;
         static int total_alive;
+        static int total_generations;
 
         int parent1id;
         int parent2id; 
+        int generation;
         int offsprings;
 
         bool alive = true;
