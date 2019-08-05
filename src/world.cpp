@@ -186,6 +186,7 @@ namespace GameOfLife
         cout << "Total plants        " << this->plants.size() << endl;
         Organism::PrintStats();
 
+        usleep(1);
         return this->organisms.size() != 0;
     }
 

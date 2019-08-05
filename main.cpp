@@ -1,7 +1,9 @@
 #include "lib/world.h"
+#include "lib/display.h"
 
 using namespace GameOfLife;
 
+/*
 #include <stdio.h>
 #include <execinfo.h>
 #include <signal.h>
@@ -23,13 +25,18 @@ void handler(int sig) {
   backtrace_symbols_fd(array, size, STDERR_FILENO);
   exit(1);
 }
+*/
 
 int main() {
-    signal(SIGSEGV, handler);
+    // signal(SIGSEGV, handler);
     World* world = new World();
-    while(world->Tick());
+    Display* display = new Display(world);
+    display->Show();
+    while(world->Tick() && display->Update());
+
     Organism::PrintStats();
 
+    delete display;
     delete world;
     return 0;
 }

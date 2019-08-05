@@ -36,9 +36,10 @@ namespace GameOfLife
         ALPHA       // Reproduction first
     };
 
-    const int DRAWN_DIRECTION_TOTAL = 4;
+    const int DRAWN_DIRECTION_TOTAL = 8;
     enum DrawnDirection 
     {
+        NORTH, SOUTH, WEST, EAST,
         NORTHWEST, NORTHEAST, SOUTHEAST, SOUTHWEST
     };
 
@@ -82,6 +83,7 @@ namespace GameOfLife
         static int total_alive;
         static int total_generations;
 
+        int id;
         int parent1id;
         int parent2id; 
         int generation;
@@ -92,6 +94,7 @@ namespace GameOfLife
         int sight = 4;
         int velocity = 4;
 
+        int impulsiveness = 100;
         int lifespan;
         int age = 0;
         int energy;

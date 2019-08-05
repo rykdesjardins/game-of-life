@@ -2,7 +2,7 @@
 #define WORLD_H
 
 #ifndef MEM_MULTIPLIER
-    #define MEM_MULTIPLIER 5
+    #define MEM_MULTIPLIER 4
 #endif
 
 #include <vector>
@@ -10,23 +10,25 @@
 #include "organism.h"
 #include <ctime>
 #include <cstdlib>
+#include <unistd.h>
 #include <iostream>
 #include <fstream>
 using namespace std;
 
 namespace GameOfLife 
 {
-    const int WORLD_SIZE = 1000 * MEM_MULTIPLIER;
-    const int FAMILY_COUNT = 50 * MEM_MULTIPLIER;
-    const int FIELDS_COUNT = 20 * MEM_MULTIPLIER;
-    const int WATER_PATCH_COUNT = 200 * MEM_MULTIPLIER;
-    const int WATER_PATCH_SIZE = 100 * MEM_MULTIPLIER;
+    const int GAME_BASE_SIZE = 700;
+    const int WORLD_SIZE = GAME_BASE_SIZE * MEM_MULTIPLIER;
+    const int FAMILY_COUNT = 10 * MEM_MULTIPLIER;
+    const int FIELDS_COUNT = 100 * MEM_MULTIPLIER;
+    const int WATER_PATCH_COUNT = 50 * MEM_MULTIPLIER;
+    const int WATER_PATCH_SIZE = 1000 * MEM_MULTIPLIER;
 
-    const int FAMILY_MIN_SIZE = 5 * MEM_MULTIPLIER;
-    const int FAMILY_MAX_SIZE = 12 * MEM_MULTIPLIER;
+    const int FAMILY_MIN_SIZE = 50 * MEM_MULTIPLIER;
+    const int FAMILY_MAX_SIZE = 200 * MEM_MULTIPLIER;
 
-    const int FIELD_MIN_SIZE = 2 * MEM_MULTIPLIER;
-    const int FIELD_MAX_SIZE = 10 * MEM_MULTIPLIER;
+    const int FIELD_MIN_SIZE = 100 * MEM_MULTIPLIER;
+    const int FIELD_MAX_SIZE = 500 * MEM_MULTIPLIER;
 
     struct Tile
     {
@@ -58,6 +60,7 @@ namespace GameOfLife
             World();
             bool Tick();
             void GetVisible(vector<TileDistance>&, Tile*, int);
+            Tile** getTiles() { return this->tiles; };
     };
 }
 

@@ -13,6 +13,7 @@ namespace GameOfLife
 
     Organism::Organism(int id, Tile* tile) 
     {
+        this->id = id;
         this->parent1id = id;
         this->parent2id = id;
         this->currenttile = tile;
@@ -20,11 +21,12 @@ namespace GameOfLife
 
         this->gender = (Gender)(rand() % GENDER_TOTAL);
         this->personality = (Personality)(rand() % PERSONALITY_TOTAL);
-        this->drawndirection = (DrawnDirection)(rand() % DRAWN_DIRECTION_TOTAL);
+        this->drawndirection = (DrawnDirection)((this->gender + this->personality) % DRAWN_DIRECTION_TOTAL);
 
         this->lifespan = (rand() % (100 * MEM_MULTIPLIER)) + (20 * MEM_MULTIPLIER);
         this->max_energy = (rand() % (100 * MEM_MULTIPLIER)) + (10 * MEM_MULTIPLIER);
         this->max_hydratation = (rand() % (20 * MEM_MULTIPLIER)) + (10 * MEM_MULTIPLIER);
+        this->impulsiveness = (rand() % 200) + 1;
 
         this->min_temperature = (float)-500 / (rand() % 10);
         this->max_temperature = (float)500 / (rand() % 10);
@@ -44,8 +46,9 @@ namespace GameOfLife
 
     Organism::Organism(Organism* parent1, Organism* parent2, Tile* tile)
     {
-        this->parent1id = parent1->parent1id;
-        this->parent2id = parent2->parent2id;
+        this->id = Organism::total_organisms;
+        this->parent1id = parent1->id;
+        this->parent2id = parent2->id;
         this->currenttile = tile;
         this->generation = max(parent1->generation, parent2->generation) + 1;
 
@@ -56,6 +59,7 @@ namespace GameOfLife
         this->lifespan = max(parent1->lifespan, parent2->lifespan) * 1.05;
         this->max_energy = max(parent1->max_energy, parent2->max_energy) * 1.1;
         this->max_hydratation = max(parent1->max_hydratation, parent2->max_hydratation) * 1.1;
+        this->impulsiveness = (rand() % 200) + 1;
 
         this->min_temperature = min(parent1->min_temperature, parent2->min_temperature) * 1.1;
         this->max_temperature = max(parent1->max_temperature, parent2->max_temperature) * 1.1;
@@ -152,12 +156,12 @@ namespace GameOfLife
 
     bool Organism::CanBreedWith(Organism *right)
     {
-        return this->CanBreed() && this->parent1id != right->parent1id && this->parent2id != right->parent2id && this->gender != right->gender;;
+        return this->CanBreed() && this->parent1id != right->parent1id && this->parent2id != right->parent2id && this->parent1id != right->id && this->parent2id != right->id && this->gender != right->gender;;
     }
 
     bool Organism::CanBreed()
     {
-        return this->offsprings < (MEM_MULTIPLIER) && this->age > 60 * MEM_MULTIPLIER;
+        return this->offsprings < (MEM_MULTIPLIER) && this->age > 20 * MEM_MULTIPLIER;
     }
 
     Tile* Organism::Move(World* world)
@@ -214,32 +218,25 @@ namespace GameOfLife
             candidate = &visibleTiles[0];
             for (TileDistance &td : visibleTiles)
             {
-                if (td.distance > candidate->distance && td.tile->organism == nullptr) {
+                if (td.tile->organism == nullptr) {
                     switch (this->drawndirection) {
-                        case NORTHWEST:
-                            if (candidate->tile->x < this->currenttile->x && candidate->tile->y < this->currenttile->y)
-                                candidate = &td;
-                            break;
+                        case EAST:  if (td.tile->x > candidate->tile->x) candidate = &td; break;
+                        case WEST:  if (td.tile->x < candidate->tile->x) candidate = &td; break;
+                        case SOUTH: if (td.tile->y > candidate->tile->y) candidate = &td; break;
+                        case NORTH: if (td.tile->y < candidate->tile->y) candidate = &td; break;
 
-                        case NORTHEAST:
-                            if (candidate->tile->x > this->currenttile->x && candidate->tile->y < this->currenttile->y)
-                                candidate = &td;
-                            break;
-
-                        case SOUTHWEST:
-                            if (candidate->tile->x > this->currenttile->x && candidate->tile->y > this->currenttile->y)
-                                candidate = &td;
-                            break;
-
-                        case SOUTHEAST:
-                            if (candidate->tile->x < this->currenttile->x && candidate->tile->y < this->currenttile->y)
-                                candidate = &td;
-                            break;
+                        case NORTHWEST: if (candidate->tile->x > td.tile->x && candidate->tile->y > td.tile->y) candidate = &td; break;
+                        case NORTHEAST: if (candidate->tile->x < td.tile->x && candidate->tile->y > td.tile->y) candidate = &td; break;
+                        case SOUTHWEST: if (candidate->tile->x < td.tile->x && candidate->tile->y < td.tile->y) candidate = &td; break;
+                        case SOUTHEAST: if (candidate->tile->x > td.tile->x && candidate->tile->y > td.tile->y) candidate = &td; break;
                     }
                 }
             }
+        }
 
-            this->drawndirection = (DrawnDirection)(rand() % 4);
+        if (rand() % this->impulsiveness == 1)
+        {
+            this->drawndirection = (DrawnDirection)(rand() % DRAWN_DIRECTION_TOTAL);
         }
 
         if (candidate != nullptr)
